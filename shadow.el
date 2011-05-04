@@ -62,6 +62,9 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 (defcustom shadow-update-file-local-variables-on-save-p t
   "When this value is non-nil, update file local variables when user save shadow file.")
 
+(defcustom shadow-purge-command-specification-p nil
+  "When this value is non-nil, purge command specification line.")
+
 (defmacro shadow-defvar (name &optional value safep doc)
   "Define buffer-local and safe-local variable."
   (declare (indent defun))
@@ -113,10 +116,12 @@ If this value is nil, shadow.vim style command is used alternatively.")
           shadowed))
 
 (defun shadow-get-shadowed-command (shadowed)
-  (if shadow-command
-      (format "cat %s" shadowed)
-    ;; remove command specification line in shadowed file
-    (setq shadowed (shadow-purge-command-specification shadowed))))
+  (if (and shadow-command
+           shadow-purge-command-specification-p)
+      ;; remove command specification line in shadowed file
+      (setq shadowed (shadow-purge-command-specification shadowed))
+    ;; as it is
+    (format "cat %s" shadowed)))
 
 (defvar shadow-haunting-command-builder
   (lambda (command shadowed-command shadowed unshadowed)
