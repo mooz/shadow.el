@@ -81,7 +81,7 @@ If this value is nil, shadow.vim style command is used alternatively.")
   "Get nth line of `buffer' as a raw string."
   (with-current-buffer buffer
     (save-excursion
-      (goto-char 1)
+      (goto-char (point-min))
       (forward-line n)
       (buffer-substring-no-properties (point)
                                       (progn (end-of-line) (point))))))
