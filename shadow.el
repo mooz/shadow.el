@@ -51,7 +51,10 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 (defcustom shadow-command-line-number 0
   "Line number (zero-originated) of shadow.vim style command specification line.")
 
-(defcustom shadow-unshadow-regexp "^\\(.*\\)\\.shd$"
+(defcustom shadow-suffix "shd"
+  "Suffix of shadow files.")
+
+(defcustom shadow-unshadow-regexp (format "^\\(.*\\)\\.%s$" shadow-suffix)
   "Regexp which is used to extract unshadowed file name from shadow file name.")
 
 (defcustom shadow-display-unshadow-message-p nil
