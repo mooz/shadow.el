@@ -58,6 +58,9 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 (defcustom shadow-display-unshadow-message-p nil
   "When this value is non-nil, message is displayed when unshadowed file is wrote.")
 
+(defcustom shadow-update-file-local-variables-on-save-p t
+  "When this value is non-nil, update file local variables when user save shadow file.")
+
 (defmacro shadow-defvar (name &optional value safep doc)
   "Define buffer-local and safe-local variable."
   (declare (indent defun))
@@ -137,6 +140,8 @@ If this value is nil, major mode is guessed from unshadowed filename.")
 
 (defun shadow-haunt ()
   "Write unshadowed file."
+  (when shadow-update-file-local-variables-on-save-p
+    (hack-local-variables))
   (let ((haunting-command (shadow-get-haunting-command)))
     (when haunting-command
       (shadow-with-suppressing-messages
