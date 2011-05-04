@@ -144,10 +144,10 @@ If this value is nil, shadow.vim style command is used alternatively.")
     (hack-local-variables))
   (let ((haunting-command (shadow-get-haunting-command)))
     (when haunting-command
-      (shadow-with-suppressing-messages
-       (shell-command haunting-command))
-      (when shadow-display-unshadow-message-p
-        (message "Shadow: %s" haunting-command))))
+      (if shadow-display-unshadow-message-p
+          (shell-command haunting-command)
+        (shadow-with-suppressing-messages
+         (shell-command haunting-command)))))
   nil)
 
 (defun shadow-set-auto-mode ()
