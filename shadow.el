@@ -45,9 +45,7 @@
   "Skip characters count for shadow.vim style command specification line.
 For instance, when `shadow-command-skip-count' is 3
 and command specification line is given as described below,
-
 ###cat
-
 first 3 characters (###) are skipped and \"cat\" is used as a command.")
 
 (defcustom shadow-command-line-number 0
@@ -78,9 +76,7 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 (shadow-defvar shadow-command
   nil stringp
   "Specify shadow command directly as a file local variable like below example.
-
 # -*- shadow-command: \"tac\" -*-
-
 If this value is nil, shadow.vim style command is used alternatively.")
 
 (shadow-defvar shadow-major-mode-decided
