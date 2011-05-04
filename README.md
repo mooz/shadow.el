@@ -13,7 +13,6 @@ See [Shadow.vim](https://github.com/ujihisa/shadow.vim/) for basic concept.
 Place shadow.el into your directory in `load-path', and put below lines in your Emacs configuration file.
 
     (require 'shadow)
-    (add-hook 'shadow-mode-hook 'shadow-set-auto-mode)
 
 ## Usage
 
