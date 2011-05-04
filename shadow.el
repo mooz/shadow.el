@@ -132,6 +132,7 @@ If this value is nil, shadow.vim style command is used alternatively.")
 (defun shadow-haunt ()
   "Write unshadowed file."
   (when shadow-update-file-local-variables-on-save-p
+    (setq shadow-command nil)
     (hack-local-variables))
   (let ((haunting-command (shadow-get-haunting-command)))
     (when haunting-command
