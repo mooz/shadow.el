@@ -170,6 +170,8 @@ If this value is nil, shadow.vim style command is used alternatively.")
     ;; disable
     (remove-hook 'after-save-hook 'shadow-haunt t)))
 
+;;; advices which are ugly and low-portable.
+
 (defadvice normal-mode (after after-normal-mode activate)
   "Activate shadow mode if this file is a shadow."
   (when (and (string-match-p shadow-unshadow-regexp buffer-file-name)
@@ -178,8 +180,6 @@ If this value is nil, shadow.vim style command is used alternatively.")
       (shadow-set-auto-mode))
     (shadow-minor-mode 1)
     (run-hooks 'shadow-mode-hook)))
-
-;; ugly and low-portable processes...
 
 (defadvice set-auto-mode-0 (after after-set-auto-mode-0 activate)
   "Mark that major mode has been already decided from local variable line (-*-)."
