@@ -155,12 +155,6 @@ If this value is nil, shadow.vim style command is used alternatively.")
   (let ((buffer-file-name (shadow-unshadow-name (buffer-file-name))))
     (set-auto-mode t)))
 
-(defun shadow-arrange ()
-  "Arrange shadow.el in target buffer."
-  (interactive)
-  (run-hooks 'shadow-mode-hook)
-  (shadow-minor-mode 1))
-
 (defmacro shadow-with-suppressing-messages (&rest body)
   "All messages are suppressed in this context."
   `(flet ((message (&rest) nil))
