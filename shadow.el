@@ -184,14 +184,14 @@ If this value is nil, shadow.vim style command is used alternatively.")
     (shadow-minor-mode 1)
     (run-hooks 'shadow-mode-hook)))
 
-;; ugly and low-portable proecsses...
+;; ugly and low-portable processes...
 
 (defadvice set-auto-mode-0 (after after-set-auto-mode-0 activate)
-  ""
+  "Mark that major mode has been already decided from local variable line (-*-)."
   (setq shadow-major-mode-decided t))
 
 (defadvice hack-one-local-variable (after after-hack-one-local-variable activate)
-  ""
+  "Mark that major mode has been already decided from Local Variables: line."
   (when (eq (ad-get-arg 0) 'mode)
     (setq shadow-major-mode-decided t)))
 
