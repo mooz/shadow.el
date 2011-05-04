@@ -60,7 +60,7 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 (defcustom shadow-update-file-local-variables-on-save-p t
   "When this value is non-nil, update file local variables when user save shadow file.")
 
-(defcustom shadow-purge-command-specification-p nil
+(defcustom shadow-purge-command-specification-p t
   "When this value is non-nil, purge command specification line.")
 
 (defmacro shadow-defvar (name &optional value safep doc)
