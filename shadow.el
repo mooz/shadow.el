@@ -112,10 +112,10 @@ If this value is nil, shadow.vim style command is used alternatively.")
           shadowed))
 
 (defun shadow-get-shadowed-command (shadowed)
-  (if (and shadow-command
+  (if (and (not shadow-command)         ; Shadow.vim style
            shadow-purge-command-specification-p)
       ;; remove command specification line in shadowed file
-      (setq shadowed (shadow-purge-command-specification shadowed))
+      (shadow-purge-command-specification shadowed)
     ;; as it is
     (format "cat %s" shadowed)))
 
