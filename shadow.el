@@ -188,7 +188,8 @@ If this value is nil, shadow.vim style command is used alternatively.")
 
 (defadvice set-auto-mode-0 (after after-set-auto-mode-0 activate)
   "Mark that major mode has been already decided from local variable line (-*-)."
-  (setq shadow-major-mode-decided t))
+  (setq shadow-major-mode-decided t)
+  (ad-get-arg 0))
 
 (defadvice hack-one-local-variable (after after-hack-one-local-variable activate)
   "Mark that major mode has been already decided from Local Variables: line."
