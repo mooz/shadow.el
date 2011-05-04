@@ -27,7 +27,7 @@
 ;;
 ;; (require 'shadow)
 ;; (add-to-list 'auto-mode-alist `(,shadow-unshadow-regexp . shadow-arrange))
-;; (add-hook 'shadow-mode-hook 'shadow-set-auto-mode)
+;; (add-hook 'shadow-mode-hook 'shadow-select-mode)
 ;;
 
 ;;; Code:
@@ -39,14 +39,6 @@
 
 (defvar shadow-mode-hook nil
   "Hook for `shadow-mode'.")
-
-(defvar shadow-command nil
-  "Specify shadow command directly as a file local variable like below example.
-
-# -*- shadow-command: \"tac\" -*-
-
-If this value is nil, shadow.vim style command is used alternatively.")
-(make-variable-buffer-local 'shadow-command)
 
 (defcustom shadow-command-skip-count 3
   "Skip characters count for shadow.vim style command specification line.
@@ -63,8 +55,33 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 (defcustom shadow-unshadow-regexp "^\\(.*\\)\\.shd$"
   "Regexp which is used to extract unshadowed file name from shadow file name.")
 
-(defcustom shadow-display-unshadow-message-p t
+(defcustom shadow-display-unshadow-message-p nil
   "When this value is non-nil, message is displayed when unshadowed file is wrote.")
+
+(defmacro shadow-defvar (name &optional value safep doc)
+  "Define buffer-local and safe-local variable."
+  (declare (indent defun))
+  `(progn
+     (defvar ,name ,value ,doc)
+     (make-variable-buffer-local (quote ,name))
+     ;; Suppress file local variable warning
+     (put (quote ,name) 'safe-local-variable (quote ,safep))))
+
+(shadow-defvar shadow-command
+  nil stringp
+  "Specify shadow command directly as a file local variable like below example.
+
+# -*- shadow-command: \"tac\" -*-
+
+If this value is nil, shadow.vim style command is used alternatively.")
+
+(shadow-defvar shadow-mode
+  nil symbolp
+  "Specify preferred major mode for the file like below example.
+
+# -*- shadow-mode: emacs-lisp -*-
+
+If this value is nil, major mode is guessed from unshadowed filename.")
 
 (defun shadow-buffer-get-nth-line (buffer n)
   "Get nth line of `buffer' as a raw string."
@@ -132,6 +149,18 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
   "Set proper mode for unshadowed file in shadowed file."
   (let ((buffer-file-name (shadow-unshadow-name (buffer-file-name))))
     (set-auto-mode t)))
+
+(defun shadow-select-mode ()
+  "Select proper mode for unshadowed file in shadowed file.
+When shadow-mode is non-nil, use that one."
+  (or (and shadow-mode
+           (let* ((name (symbol-name shadow-mode))
+                  (mode (intern (if (string-match-p "-mode$" name)
+                                    name
+                                  (concat name "-mode")))))
+             (when (functionp mode)
+               (funcall mode) t)))
+      (shadow-set-auto-mode)))
 
 (defun shadow-arrange ()
   "Arrange shadow.el in target buffer."
