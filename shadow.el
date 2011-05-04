@@ -170,8 +170,8 @@ If this value is nil, shadow.vim style command is used alternatively.")
 (defadvice normal-mode (after after-normal-mode activate)
   "Activate shadow mode if this file is a shadow."
   (when (string-match-p shadow-unshadow-regexp buffer-file-name)
-    (shadow-minor-mode 1)
-    (run-hooks 'shadow-mode-hook)))
+    (run-hooks 'shadow-mode-hook)
+    (shadow-minor-mode 1)))
 
 (provide 'shadow)
 ;;; shadow.el ends here
