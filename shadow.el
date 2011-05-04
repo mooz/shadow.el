@@ -26,7 +26,6 @@
 ;; In your emacs config, put below lines.
 ;;
 ;; (require 'shadow)
-;; (add-hook 'shadow-mode-hook 'shadow-set-auto-mode)
 ;;
 
 ;;; Code:
@@ -38,6 +37,9 @@
 
 (defvar shadow-mode-hook nil
   "Hook for `shadow-mode'.")
+
+(defvar shadow-auto-start t
+  "Automatically enables `shadow-minor-mode' when user visits a shadow file.")
 
 (defcustom shadow-command-skip-count 3
   "Skip characters count for shadow.vim style command specification line.
@@ -67,7 +69,8 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
      (defvar ,name ,value ,doc)
      (make-variable-buffer-local (quote ,name))
      ;; Suppress file local variable warning
-     (put (quote ,name) 'safe-local-variable (quote ,safep))))
+     ,(when safep
+        `(put (quote ,name) 'safe-local-variable (quote ,safep)))))
 
 (shadow-defvar shadow-command
   nil stringp
@@ -76,6 +79,10 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 # -*- shadow-command: \"tac\" -*-
 
 If this value is nil, shadow.vim style command is used alternatively.")
+
+(shadow-defvar shadow-major-mode-decided
+  nil nil
+  "Non-nil if major mode has already been decided in this buffer.")
 
 (defun shadow-buffer-get-nth-line (buffer n)
   "Get nth line of `buffer' as a raw string."
@@ -170,9 +177,23 @@ If this value is nil, shadow.vim style command is used alternatively.")
 
 (defadvice normal-mode (after after-normal-mode activate)
   "Activate shadow mode if this file is a shadow."
-  (when (string-match-p shadow-unshadow-regexp buffer-file-name)
-    (run-hooks 'shadow-mode-hook)
-    (shadow-minor-mode 1)))
+  (when (and (string-match-p shadow-unshadow-regexp buffer-file-name)
+             shadow-auto-start)
+    (unless shadow-major-mode-decided
+      (shadow-set-auto-mode))
+    (shadow-minor-mode 1)
+    (run-hooks 'shadow-mode-hook)))
+
+;; ugly and low-portable proecsses...
+
+(defadvice set-auto-mode-0 (after after-set-auto-mode-0 activate)
+  ""
+  (setq shadow-major-mode-decided t))
+
+(defadvice hack-one-local-variable (after after-hack-one-local-variable activate)
+  ""
+  (when (eq (ad-get-arg 0) 'mode)
+    (setq shadow-major-mode-decided t)))
 
 (provide 'shadow)
 ;;; shadow.el ends here
