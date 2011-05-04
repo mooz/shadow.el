@@ -26,8 +26,7 @@
 ;; In your emacs config, put below lines.
 ;;
 ;; (require 'shadow)
-;; (add-to-list 'auto-mode-alist `(,shadow-unshadow-regexp . shadow-arrange))
-;; (add-hook 'shadow-mode-hook 'shadow-select-mode)
+;; (add-hook 'shadow-mode-hook 'shadow-set-auto-mode)
 ;;
 
 ;;; Code:
@@ -77,14 +76,6 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 # -*- shadow-command: \"tac\" -*-
 
 If this value is nil, shadow.vim style command is used alternatively.")
-
-(shadow-defvar shadow-mode
-  nil symbolp
-  "Specify preferred major mode for the file like below example.
-
-# -*- shadow-mode: emacs-lisp -*-
-
-If this value is nil, major mode is guessed from unshadowed filename.")
 
 (defun shadow-buffer-get-nth-line (buffer n)
   "Get nth line of `buffer' as a raw string."
@@ -155,18 +146,6 @@ If this value is nil, major mode is guessed from unshadowed filename.")
   (let ((buffer-file-name (shadow-unshadow-name (buffer-file-name))))
     (set-auto-mode t)))
 
-(defun shadow-select-mode ()
-  "Select proper mode for unshadowed file in shadowed file.
-When shadow-mode is non-nil, use that one."
-  (or (and shadow-mode
-           (let* ((name (symbol-name shadow-mode))
-                  (mode (intern (if (string-match-p "-mode$" name)
-                                    name
-                                  (concat name "-mode")))))
-             (when (functionp mode)
-               (funcall mode) t)))
-      (shadow-set-auto-mode)))
-
 (defun shadow-arrange ()
   "Arrange shadow.el in target buffer."
   (interactive)
@@ -187,6 +166,12 @@ When shadow-mode is non-nil, use that one."
         (add-hook 'after-save-hook 'shadow-haunt nil t))
     ;; disable
     (remove-hook 'after-save-hook 'shadow-haunt t)))
+
+(defadvice normal-mode (after after-normal-mode activate)
+  "Activate shadow mode if this file is a shadow."
+  (when (string-match-p shadow-unshadow-regexp buffer-file-name)
+    (shadow-minor-mode 1)
+    (run-hooks 'shadow-mode-hook)))
 
 (provide 'shadow)
 ;;; shadow.el ends here
