@@ -71,13 +71,13 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 (defcustom shadow-unshadow-regexp (format "^\\(.*\\)\\.%s$" shadow-suffix)
   "Regexp which is used to extract unshadowed file name from shadow file name.")
 
-(defcustom shadow-display-unshadow-message-p nil
+(defcustom shadow-display-unshadow-message nil
   "When this value is non-nil, message is displayed when unshadowed file is wrote.")
 
-(defcustom shadow-update-file-local-variables-on-save-p t
+(defcustom shadow-update-file-local-variables-on-save t
   "When this value is non-nil, update file local variables when user save shadow file.")
 
-(defcustom shadow-purge-command-specification-p t
+(defcustom shadow-purge-command-specification t
   "When this value is non-nil, purge command specification line.")
 
 (defmacro shadow-defvar (name &optional value safep doc)
@@ -130,7 +130,7 @@ If this value is nil, shadow.vim style command is used alternatively.")
 
 (defun shadow-get-shadowed-command (shadowed)
   (if (and (not shadow-command)         ; Shadow.vim style
-           shadow-purge-command-specification-p)
+           shadow-purge-command-specification)
       ;; remove command specification line in shadowed file
       (shadow-purge-command-specification shadowed)
     ;; as it is
@@ -156,12 +156,12 @@ If this value is nil, shadow.vim style command is used alternatively.")
 
 (defun shadow-haunt ()
   "Write unshadowed file."
-  (when shadow-update-file-local-variables-on-save-p
+  (when shadow-update-file-local-variables-on-save
     (setq shadow-command nil)
     (hack-local-variables))
   (let ((haunting-command (shadow-get-haunting-command)))
     (when haunting-command
-      (if shadow-display-unshadow-message-p
+      (if shadow-display-unshadow-message
           (shell-command haunting-command)
         (shadow-with-suppressing-messages
          (shell-command haunting-command)))))
