@@ -14,6 +14,14 @@ Place shadow.el into your directory in `load-path', and put below lines in your 
 
     (require 'shadow)
 
+If you want to open shadow file transparently, put below lines too.
+
+    (add-hook 'find-file-hooks 'shadow-on-find-file)
+    (add-hook 'shadow-find-unshadow-hook
+              (lambda () (auto-revert-mode 1)))
+
+By Enabling this setting, shadow.el opens `foo.bar.shd` automatically when you attempt to open `foo.bar` and enables `auto-revert-mode` in the `foo.bar`.
+
 ## Usage
 
 While supporting Shadow.vim style simple command specification, Shadow.el also supports Emacs's file local variable style command specification.

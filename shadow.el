@@ -23,9 +23,20 @@
 
 ;;; Usage:
 ;;
-;; In your emacs config, put below lines.
+;; <See https://github.com/mooz/shadow.el for details>
+;;
+;; In your emacs config, put below line.
 ;;
 ;; (require 'shadow)
+;;
+;; If you want to open shadowed file transparently, put below lines too.
+;;
+;; (add-hook 'find-file-hooks 'shadow-on-find-file)
+;; (add-hook 'shadow-find-unshadow-hook
+;;           (lambda () (auto-revert-mode 1)))
+;;
+;; By Enabling this setting, shadow.el opens `foo.bar.shd` automatically
+;; when you attempt to open `foo.bar` and enables `auto-revert-mode` in the `foo.bar`.
 ;;
 
 ;;; Code:
@@ -37,6 +48,9 @@
 
 (defvar shadow-mode-hook nil
   "Hook for `shadow-mode'.")
+
+(defvar shadow-find-unshadow-hook nil
+  "Functions in this hook are called when user opened unshadowed file.")
 
 (defvar shadow-auto-start t
   "Automatically enables `shadow-minor-mode' when user visits a shadow file.")
@@ -162,6 +176,33 @@ If this value is nil, shadow.vim style command is used alternatively.")
   "All messages are suppressed in this context."
   `(flet ((message (&rest) nil))
      ,@body))
+
+(defsubst shadow-shadow-buffer-p (&optional buffer)
+  "Returns non-nil if the `buffer' is shadowed buffer."
+  (with-current-buffer (or buffer (current-buffer))
+    (string-match-p shadow-unshadow-regexp buffer-file-name)))
+
+(defsubst shadow-has-shadow-file-p (&optional buffer)
+  "Returns non-nil if the file linked to the `buffer' has shadowed file."
+  (with-current-buffer (or buffer (current-buffer))
+    (file-exists-p (shadow-get-shadow-file-name))))
+
+(defsubst shadow-get-shadow-file-name ()
+  "Get shadowed file name for the current buffer."
+  (concat buffer-file-name "." shadow-suffix))
+
+(defun shadow-open-shadow-file ()
+  "Open shadow file for current buffer if shadow file exists and returns it's buffer."
+  (if (and (not (shadow-shadow-buffer-p))
+           (shadow-has-shadow-file-p))
+      (find-file-existing (shadow-get-shadow-file-name))))
+
+(defun shadow-on-find-file ()
+  "If this function is set to `find-file-hooks', shadow.el open shadowed file automatically
+when you visit unshadowed file."
+  (when (shadow-has-shadow-file-p)
+    (run-hooks 'shadow-find-unshadow-hook)
+    (shadow-open-shadow-file)))
 
 (define-minor-mode shadow-minor-mode
   "Shadow mode"
