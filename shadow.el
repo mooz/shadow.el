@@ -218,8 +218,8 @@ when you visit unshadowed file."
 
 (defadvice normal-mode (after after-normal-mode activate)
   "Activate shadow mode if this file is a shadow."
-  (when (and (string-match-p shadow-unshadow-regexp buffer-file-name)
-             shadow-auto-start)
+  (when (and shadow-auto-start
+             (string-match-p shadow-unshadow-regexp buffer-file-name))
     (unless shadow-major-mode-decided
       (shadow-set-auto-mode))
     (shadow-minor-mode 1)
