@@ -80,6 +80,10 @@ first 3 characters (###) are skipped and \"cat\" is used as a command.")
 (defcustom shadow-purge-command-specification t
   "When this value is non-nil, purge command specification line.")
 
+(defcustom shadow-force-visit-shadow-file nil
+  "When this value is non-nil and user attempts to open unshadow file,
+shadow.el always try to open shadow file whether there is already shadow buffer.")
+
 (defmacro shadow-defvar (name &optional value safep doc)
   "Define buffer-local and safe-local variable."
   (declare (indent defun))
@@ -193,16 +197,28 @@ If this value is nil, shadow.vim style command is used alternatively.")
 
 (defun shadow-open-shadow-file ()
   "Open shadow file for current buffer if shadow file exists and returns it's buffer."
-  (if (and (not (shadow-shadow-buffer-p))
-           (shadow-has-shadow-file-p))
-      (find-file-existing (shadow-get-shadow-file-name))))
+  (when (and (not (shadow-shadow-buffer-p))
+             (shadow-has-shadow-file-p))
+    (prog1
+        (find-file-existing (shadow-get-shadow-file-name))
+      (message "shadow.el: Opened shadow file for %s"
+               (shadow-unshadow-name (buffer-file-name))))))
+
+(defun shadow-already-opened-shadow-file ()
+  "Returns t, if there is a shadow of current buffer."
+  (let ((shadow-file-name (shadow-get-shadow-file-name)))
+    (loop for buf in (buffer-list)
+          if (string= (buffer-file-name buf) shadow-file-name)
+          return t)))
 
 (defun shadow-on-find-file ()
   "If this function is set to `find-file-hooks', shadow.el open shadowed file automatically
 when you visit unshadowed file."
   (when (shadow-has-shadow-file-p)
     (run-hooks 'shadow-find-unshadow-hook)
-    (shadow-open-shadow-file)))
+    (when (or shadow-force-visit-shadow-file
+              (not (shadow-already-opened-shadow-file)))
+      (shadow-open-shadow-file))))
 
 (define-minor-mode shadow-minor-mode
   "Shadow mode"
